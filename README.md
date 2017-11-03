@@ -19,10 +19,6 @@ Support Android 4.0+
 
 ![example.gif](./example.gif "example.gif")
 
-Here has a [demo apk](https://github.com/mthli/Knife/releases/download/v1.1/KnifeDemo.1.1.apk "KnifeDemo.1.1.apk"), and it's [source code](https://github.com/mthli/Knife/tree/master/app "KnifeDemo.1.1.apk's source code"), very easy to understand~
-
-More experiments see [mthli/Type](https://github.com/mthli/Type "mthli/Type").
-
 ## Api
 
  - `bold(boolean valid)` __bold__ the selected text.
@@ -43,15 +39,9 @@ More experiments see [mthli/Type](https://github.com/mthli/Type "mthli/Type").
  
  - `clearFormats()` clear all formats. 
  
- - `redo()` when text changed, you can redo it!
- 
- - `undo()` when text change, you can also undo it!
- 
  - `fromHtml()` import from HTML file. 
  
  - `toHtml()` export as HTML file.
- 
-If you want to get more control of the editable text, just extend KnifeText to get all protected method.
 
 #### Custom
 
@@ -60,10 +50,6 @@ If you want to get more control of the editable text, just extend KnifeText to g
  - `app:bulletRadius`
     
  - `app:bulletGapWidth`
- 
- - `app:historyEnable` `true` to enable record history, so you can `redo()` and `undo()`.
-    
- - `app:historySize` the record max limit.
     
  - `app:linkColor`
     
@@ -74,27 +60,7 @@ If you want to get more control of the editable text, just extend KnifeText to g
  - `app:quoteStripeWidth` the quote line width.
     
  - `app:quoteCapWidth`
- 
-#### TODO
 
- - Insert image.
-
-## Gradle
-
-At your top-level `build.gradle` file:
-
-    repositories {
-        // ...
-        maven { url 'https://jitpack.io' }
-    }
-    
-And then at your project `build.gradle` file:
-
-    dependencies {
-        compile 'com.github.mthli:Knife:v1.1'
-    }
-    
-Done!
 
 ## Reference
 

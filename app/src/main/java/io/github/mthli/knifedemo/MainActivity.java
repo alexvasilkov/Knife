@@ -49,7 +49,7 @@ public class MainActivity extends Activity {
     }
 
     private void setupBold() {
-        ImageButton bold = (ImageButton) findViewById(R.id.bold);
+        ImageButton bold = findViewById(R.id.bold);
 
         bold.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -68,7 +68,7 @@ public class MainActivity extends Activity {
     }
 
     private void setupItalic() {
-        ImageButton italic = (ImageButton) findViewById(R.id.italic);
+        ImageButton italic = findViewById(R.id.italic);
 
         italic.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -87,7 +87,7 @@ public class MainActivity extends Activity {
     }
 
     private void setupUnderline() {
-        ImageButton underline = (ImageButton) findViewById(R.id.underline);
+        ImageButton underline = findViewById(R.id.underline);
 
         underline.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -106,7 +106,7 @@ public class MainActivity extends Activity {
     }
 
     private void setupStrikethrough() {
-        ImageButton strikethrough = (ImageButton) findViewById(R.id.strikethrough);
+        ImageButton strikethrough = findViewById(R.id.strikethrough);
 
         strikethrough.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -125,7 +125,7 @@ public class MainActivity extends Activity {
     }
 
     private void setupBullet() {
-        ImageButton bullet = (ImageButton) findViewById(R.id.bullet);
+        ImageButton bullet = findViewById(R.id.bullet);
 
         bullet.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -145,7 +145,7 @@ public class MainActivity extends Activity {
     }
 
     private void setupQuote() {
-        ImageButton quote = (ImageButton) findViewById(R.id.quote);
+        ImageButton quote = findViewById(R.id.quote);
 
         quote.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -164,7 +164,7 @@ public class MainActivity extends Activity {
     }
 
     private void setupLink() {
-        ImageButton link = (ImageButton) findViewById(R.id.link);
+        ImageButton link = findViewById(R.id.link);
 
         link.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -183,7 +183,7 @@ public class MainActivity extends Activity {
     }
 
     private void setupClear() {
-        ImageButton clear = (ImageButton) findViewById(R.id.clear);
+        ImageButton clear = findViewById(R.id.clear);
 
         clear.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -236,29 +236,4 @@ public class MainActivity extends Activity {
         builder.create().show();
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return super.onCreateOptionsMenu(menu);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.undo:
-                knife.undo();
-                break;
-            case R.id.redo:
-                knife.redo();
-                break;
-            case R.id.github:
-                Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(getResources().getString(R.string.app_repo)));
-                startActivity(intent);
-                break;
-            default:
-                break;
-        }
-
-        return true;
-    }
 }

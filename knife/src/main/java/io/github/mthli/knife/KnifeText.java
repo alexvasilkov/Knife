@@ -19,12 +19,10 @@ package io.github.mthli.knife;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Typeface;
-import android.text.Editable;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.TextUtils;
-import android.text.TextWatcher;
 import android.text.style.BulletSpan;
 import android.text.style.QuoteSpan;
 import android.text.style.StrikethroughSpan;
@@ -35,14 +33,13 @@ import android.util.AttributeSet;
 import android.widget.EditText;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 
 import io.github.mthli.knife.spans.KnifeBulletSpan;
 import io.github.mthli.knife.spans.KnifeQuoteSpan;
 import io.github.mthli.knife.spans.KnifeURLSpan;
 
-public class KnifeText extends EditText implements TextWatcher {
+public class KnifeText extends EditText {
 
     public static final int FORMAT_BOLD = 0x01;
     public static final int FORMAT_ITALIC = 0x02;
@@ -55,20 +52,11 @@ public class KnifeText extends EditText implements TextWatcher {
     private int bulletColor = 0;
     private int bulletRadius = 0;
     private int bulletGapWidth = 0;
-    private boolean historyEnable = true;
-    private int historySize = 100;
     private int linkColor = 0;
     private boolean linkUnderline = true;
     private int quoteColor = 0;
     private int quoteStripeWidth = 0;
     private int quoteGapWidth = 0;
-
-    private List<Editable> historyList = new LinkedList<>();
-    private boolean historyWorking = false;
-    private int historyCursor = 0;
-
-    private SpannableStringBuilder inputBefore;
-    private Editable inputLast;
 
     public KnifeText(Context context) {
         super(context);
@@ -85,42 +73,17 @@ public class KnifeText extends EditText implements TextWatcher {
         init(attrs);
     }
 
-    @SuppressWarnings("NewApi")
-    public KnifeText(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
-        super(context, attrs, defStyleAttr, defStyleRes);
-        init(attrs);
-    }
-
     private void init(AttributeSet attrs) {
         TypedArray array = getContext().obtainStyledAttributes(attrs, R.styleable.KnifeText);
         bulletColor = array.getColor(R.styleable.KnifeText_bulletColor, 0);
         bulletRadius = array.getDimensionPixelSize(R.styleable.KnifeText_bulletRadius, 0);
         bulletGapWidth = array.getDimensionPixelSize(R.styleable.KnifeText_bulletGapWidth, 0);
-        historyEnable = array.getBoolean(R.styleable.KnifeText_historyEnable, true);
-        historySize = array.getInt(R.styleable.KnifeText_historySize, 100);
         linkColor = array.getColor(R.styleable.KnifeText_linkColor, 0);
         linkUnderline = array.getBoolean(R.styleable.KnifeText_linkUnderline, true);
         quoteColor = array.getColor(R.styleable.KnifeText_quoteColor, 0);
         quoteStripeWidth = array.getDimensionPixelSize(R.styleable.KnifeText_quoteStripeWidth, 0);
         quoteGapWidth = array.getDimensionPixelSize(R.styleable.KnifeText_quoteCapWidth, 0);
         array.recycle();
-
-        if (historyEnable && historySize <= 0) {
-            throw new IllegalArgumentException("historySize must > 0");
-        }
-    }
-
-    @Override
-    protected void onAttachedToWindow() {
-        super.onAttachedToWindow();
-
-        addTextChangedListener(this);
-    }
-
-    @Override
-    protected void onDetachedFromWindow() {
-        super.onDetachedFromWindow();
-        removeTextChangedListener(this);
     }
 
     // StyleSpan ===================================================================================
@@ -718,91 +681,6 @@ public class KnifeText extends EditText implements TextWatcher {
             }
 
             return getEditableText().subSequence(start, end).toString().equals(builder.toString());
-        }
-    }
-
-    // Redo/Undo ===================================================================================
-
-    @Override
-    public void beforeTextChanged(CharSequence text, int start, int count, int after) {
-        if (!historyEnable || historyWorking) {
-            return;
-        }
-
-        inputBefore = new SpannableStringBuilder(text);
-    }
-
-    @Override
-    public void onTextChanged(CharSequence text, int start, int before, int count) {
-        // DO NOTHING HERE
-    }
-
-    @Override
-    public void afterTextChanged(Editable text) {
-        if (!historyEnable || historyWorking) {
-            return;
-        }
-
-        inputLast = new SpannableStringBuilder(text);
-        if (text != null && text.toString().equals(inputBefore.toString())) {
-            return;
-        }
-
-        if (historyList.size() >= historySize) {
-            historyList.remove(0);
-        }
-
-        historyList.add(inputBefore);
-        historyCursor = historyList.size();
-    }
-
-    public void redo() {
-        if (!redoValid()) {
-            return;
-        }
-
-        historyWorking = true;
-
-        if (historyCursor >= historyList.size() - 1) {
-            historyCursor = historyList.size();
-            setText(inputLast);
-        } else {
-            historyCursor++;
-            setText(historyList.get(historyCursor));
-        }
-
-        setSelection(getEditableText().length());
-        historyWorking = false;
-    }
-
-    public void undo() {
-        if (!undoValid()) {
-            return;
-        }
-
-        historyWorking = true;
-
-        historyCursor--;
-        setText(historyList.get(historyCursor));
-        setSelection(getEditableText().length());
-
-        historyWorking = false;
-    }
-
-    public boolean redoValid() {
-        return historyEnable && historySize > 0 && historyList.size() > 0 && !historyWorking
-                && (historyCursor < historyList.size() - 1
-                || historyCursor >= historyList.size() - 1 && inputLast != null);
-    }
-
-    public boolean undoValid() {
-        return historyEnable && historySize > 0 && !historyWorking
-                && historyList.size() > 0 && historyCursor > 0;
-    }
-
-    public void clearHistory() {
-        if (historyList != null) {
-            historyList.clear();
         }
     }
 
