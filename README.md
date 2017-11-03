@@ -1,5 +1,11 @@
 **This project is imported from https://github.com/mthli/Knife**
 
+The library was abandoned for 2 years, and original author distributed library which had problems
+with manifest merging, he also distributed it using jitpack which is a questionable source.    
+
+Having it in the internal repository makes it easier for us to fix any issues we'll potentially
+have with it.
+
 Knife
 ===
 
