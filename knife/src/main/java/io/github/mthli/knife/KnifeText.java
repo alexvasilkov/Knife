@@ -20,6 +20,7 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Typeface;
 import android.text.Editable;
+import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.TextUtils;
@@ -31,14 +32,18 @@ import android.text.style.StyleSpan;
 import android.text.style.URLSpan;
 import android.text.style.UnderlineSpan;
 import android.util.AttributeSet;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
+import io.github.mthli.knife.spans.KnifeBulletSpan;
+import io.github.mthli.knife.spans.KnifeQuoteSpan;
+import io.github.mthli.knife.spans.KnifeURLSpan;
+
 public class KnifeText extends EditText implements TextWatcher {
+
     public static final int FORMAT_BOLD = 0x01;
     public static final int FORMAT_ITALIC = 0x02;
     public static final int FORMAT_UNDERLINED = 0x03;
@@ -151,7 +156,8 @@ public class KnifeText extends EditText implements TextWatcher {
             return;
         }
 
-        getEditableText().setSpan(new StyleSpan(style), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        getEditableText().setSpan(
+                new StyleSpan(style), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
     }
 
     protected void styleInvalid(int style, int start, int end) {
@@ -170,23 +176,23 @@ public class KnifeText extends EditText implements TextWatcher {
         }
 
         StyleSpan[] spans = getEditableText().getSpans(start, end, StyleSpan.class);
-        List<KnifePart> list = new ArrayList<>();
+        List<SpanPart> list = new ArrayList<>();
 
         for (StyleSpan span : spans) {
             if (span.getStyle() == style) {
-                list.add(new KnifePart(getEditableText().getSpanStart(span), getEditableText().getSpanEnd(span)));
+                list.add(new SpanPart(getEditableText(), span));
                 getEditableText().removeSpan(span);
             }
         }
 
-        for (KnifePart part : list) {
+        for (SpanPart part : list) {
             if (part.isValid()) {
-                if (part.getStart() < start) {
-                    styleValid(style, part.getStart(), start);
+                if (part.start < start) {
+                    styleValid(style, part.start, start);
                 }
 
-                if (part.getEnd() > end) {
-                    styleValid(style, end, part.getEnd());
+                if (part.end > end) {
+                    styleValid(style, end, part.end);
                 }
             }
         }
@@ -213,7 +219,8 @@ public class KnifeText extends EditText implements TextWatcher {
             } else {
                 StyleSpan[] before = getEditableText().getSpans(start - 1, start, StyleSpan.class);
                 StyleSpan[] after = getEditableText().getSpans(start, start + 1, StyleSpan.class);
-                return before.length > 0 && after.length > 0 && before[0].getStyle() == style && after[0].getStyle() == style;
+                return before.length > 0 && after.length > 0
+                        && before[0].getStyle() == style && after[0].getStyle() == style;
             }
         } else {
             StringBuilder builder = new StringBuilder();
@@ -248,7 +255,8 @@ public class KnifeText extends EditText implements TextWatcher {
             return;
         }
 
-        getEditableText().setSpan(new UnderlineSpan(), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        getEditableText().setSpan(
+                new UnderlineSpan(), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
     }
 
     protected void underlineInvalid(int start, int end) {
@@ -257,21 +265,21 @@ public class KnifeText extends EditText implements TextWatcher {
         }
 
         UnderlineSpan[] spans = getEditableText().getSpans(start, end, UnderlineSpan.class);
-        List<KnifePart> list = new ArrayList<>();
+        List<SpanPart> list = new ArrayList<>();
 
         for (UnderlineSpan span : spans) {
-            list.add(new KnifePart(getEditableText().getSpanStart(span), getEditableText().getSpanEnd(span)));
+            list.add(new SpanPart(getEditableText(), span));
             getEditableText().removeSpan(span);
         }
 
-        for (KnifePart part : list) {
+        for (SpanPart part : list) {
             if (part.isValid()) {
-                if (part.getStart() < start) {
-                    underlineValid(part.getStart(), start);
+                if (part.start < start) {
+                    underlineValid(part.start, start);
                 }
 
-                if (part.getEnd() > end) {
-                    underlineValid(end, part.getEnd());
+                if (part.end > end) {
+                    underlineValid(end, part.end);
                 }
             }
         }
@@ -286,8 +294,10 @@ public class KnifeText extends EditText implements TextWatcher {
             if (start - 1 < 0 || start + 1 > getEditableText().length()) {
                 return false;
             } else {
-                UnderlineSpan[] before = getEditableText().getSpans(start - 1, start, UnderlineSpan.class);
-                UnderlineSpan[] after = getEditableText().getSpans(start, start + 1, UnderlineSpan.class);
+                UnderlineSpan[] before =
+                        getEditableText().getSpans(start - 1, start, UnderlineSpan.class);
+                UnderlineSpan[] after =
+                        getEditableText().getSpans(start, start + 1, UnderlineSpan.class);
                 return before.length > 0 && after.length > 0;
             }
         } else {
@@ -318,7 +328,8 @@ public class KnifeText extends EditText implements TextWatcher {
             return;
         }
 
-        getEditableText().setSpan(new StrikethroughSpan(), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        getEditableText().setSpan(
+                new StrikethroughSpan(), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
     }
 
     protected void strikethroughInvalid(int start, int end) {
@@ -327,21 +338,21 @@ public class KnifeText extends EditText implements TextWatcher {
         }
 
         StrikethroughSpan[] spans = getEditableText().getSpans(start, end, StrikethroughSpan.class);
-        List<KnifePart> list = new ArrayList<>();
+        List<SpanPart> list = new ArrayList<>();
 
         for (StrikethroughSpan span : spans) {
-            list.add(new KnifePart(getEditableText().getSpanStart(span), getEditableText().getSpanEnd(span)));
+            list.add(new SpanPart(getEditableText(), span));
             getEditableText().removeSpan(span);
         }
 
-        for (KnifePart part : list) {
+        for (SpanPart part : list) {
             if (part.isValid()) {
-                if (part.getStart() < start) {
-                    strikethroughValid(part.getStart(), start);
+                if (part.start < start) {
+                    strikethroughValid(part.start, start);
                 }
 
-                if (part.getEnd() > end) {
-                    strikethroughValid(end, part.getEnd());
+                if (part.end > end) {
+                    strikethroughValid(end, part.end);
                 }
             }
         }
@@ -356,8 +367,10 @@ public class KnifeText extends EditText implements TextWatcher {
             if (start - 1 < 0 || start + 1 > getEditableText().length()) {
                 return false;
             } else {
-                StrikethroughSpan[] before = getEditableText().getSpans(start - 1, start, StrikethroughSpan.class);
-                StrikethroughSpan[] after = getEditableText().getSpans(start, start + 1, StrikethroughSpan.class);
+                StrikethroughSpan[] before =
+                        getEditableText().getSpans(start - 1, start, StrikethroughSpan.class);
+                StrikethroughSpan[] after =
+                        getEditableText().getSpans(start, start + 1, StrikethroughSpan.class);
                 return before.length > 0 && after.length > 0;
             }
         } else {
@@ -413,7 +426,9 @@ public class KnifeText extends EditText implements TextWatcher {
             }
 
             if (bulletStart < bulletEnd) {
-                getEditableText().setSpan(new KnifeBulletSpan(bulletColor, bulletRadius, bulletGapWidth), bulletStart, bulletEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                getEditableText().setSpan(
+                        new KnifeBulletSpan(bulletColor, bulletRadius, bulletGapWidth),
+                        bulletStart, bulletEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
             }
         }
     }
@@ -447,7 +462,8 @@ public class KnifeText extends EditText implements TextWatcher {
             }
 
             if (bulletStart < bulletEnd) {
-                BulletSpan[] spans = getEditableText().getSpans(bulletStart, bulletEnd, BulletSpan.class);
+                BulletSpan[] spans =
+                        getEditableText().getSpans(bulletStart, bulletEnd, BulletSpan.class);
                 for (BulletSpan span : spans) {
                     getEditableText().removeSpan(span);
                 }
@@ -545,7 +561,9 @@ public class KnifeText extends EditText implements TextWatcher {
             }
 
             if (quoteStart < quoteEnd) {
-                getEditableText().setSpan(new KnifeQuoteSpan(quoteColor, quoteStripeWidth, quoteGapWidth), quoteStart, quoteEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                getEditableText().setSpan(
+                        new KnifeQuoteSpan(quoteColor, quoteStripeWidth, quoteGapWidth),
+                        quoteStart, quoteEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
             }
         }
     }
@@ -579,7 +597,8 @@ public class KnifeText extends EditText implements TextWatcher {
             }
 
             if (quoteStart < quoteEnd) {
-                QuoteSpan[] spans = getEditableText().getSpans(quoteStart, quoteEnd, QuoteSpan.class);
+                QuoteSpan[] spans =
+                        getEditableText().getSpans(quoteStart, quoteEnd, QuoteSpan.class);
                 for (QuoteSpan span : spans) {
                     getEditableText().removeSpan(span);
                 }
@@ -659,7 +678,9 @@ public class KnifeText extends EditText implements TextWatcher {
         }
 
         linkInvalid(start, end);
-        getEditableText().setSpan(new KnifeURLSpan(link, linkColor, linkUnderline), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        getEditableText().setSpan(
+                new KnifeURLSpan(link, linkColor, linkUnderline),
+                start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
     }
 
     // Remove all span in selection, not like the boldInvalid()
@@ -769,23 +790,14 @@ public class KnifeText extends EditText implements TextWatcher {
     }
 
     public boolean redoValid() {
-        if (!historyEnable || historySize <= 0 || historyList.size() <= 0 || historyWorking) {
-            return false;
-        }
-
-        return historyCursor < historyList.size() - 1 || historyCursor >= historyList.size() - 1 && inputLast != null;
+        return historyEnable && historySize > 0 && historyList.size() > 0 && !historyWorking
+                && (historyCursor < historyList.size() - 1
+                || historyCursor >= historyList.size() - 1 && inputLast != null);
     }
 
     public boolean undoValid() {
-        if (!historyEnable || historySize <= 0 || historyWorking) {
-            return false;
-        }
-
-        if (historyList.size() <= 0 || historyCursor <= 0) {
-            return false;
-        }
-
-        return true;
+        return historyEnable && historySize > 0 && !historyWorking
+                && historyList.size() > 0 && historyCursor > 0;
     }
 
     public void clearHistory() {
@@ -822,22 +834,10 @@ public class KnifeText extends EditText implements TextWatcher {
         setSelection(getEditableText().length());
     }
 
-    public void hideSoftInput() {
-        clearFocus();
-        InputMethodManager imm = (InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
-        imm.hideSoftInputFromWindow(getWindowToken(), 0);
-    }
-
-    public void showSoftInput() {
-        requestFocus();
-        InputMethodManager imm = (InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
-        imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
-    }
-
     public void fromHtml(String source) {
         SpannableStringBuilder builder = new SpannableStringBuilder();
         builder.append(KnifeParser.fromHtml(source));
-        switchToKnifeStyle(builder, 0, builder.length());
+        switchToKnifeStyle(builder);
         setText(builder);
     }
 
@@ -845,31 +845,38 @@ public class KnifeText extends EditText implements TextWatcher {
         return KnifeParser.toHtml(getEditableText());
     }
 
-    protected void switchToKnifeStyle(Editable editable, int start, int end) {
-        BulletSpan[] bulletSpans = editable.getSpans(start, end, BulletSpan.class);
+
+    private void switchToKnifeStyle(Spannable text) {
+        final int length = text.length();
+
+        BulletSpan[] bulletSpans = text.getSpans(0, length, BulletSpan.class);
         for (BulletSpan span : bulletSpans) {
-            int spanStart = editable.getSpanStart(span);
-            int spanEnd = editable.getSpanEnd(span);
-            spanEnd = 0 < spanEnd && spanEnd < editable.length() && editable.charAt(spanEnd) == '\n' ? spanEnd - 1 : spanEnd;
-            editable.removeSpan(span);
-            editable.setSpan(new KnifeBulletSpan(bulletColor, bulletRadius, bulletGapWidth), spanStart, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            int spanStart = text.getSpanStart(span);
+            int spanEnd = text.getSpanEnd(span);
+            spanEnd = spanEnd < length && text.charAt(spanEnd) == '\n' ? spanEnd - 1 : spanEnd;
+            text.removeSpan(span);
+            text.setSpan(new KnifeBulletSpan(bulletColor, bulletRadius, bulletGapWidth),
+                    spanStart, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         }
 
-        QuoteSpan[] quoteSpans = editable.getSpans(start, end, QuoteSpan.class);
+        QuoteSpan[] quoteSpans = text.getSpans(0, length, QuoteSpan.class);
         for (QuoteSpan span : quoteSpans) {
-            int spanStart = editable.getSpanStart(span);
-            int spanEnd = editable.getSpanEnd(span);
-            spanEnd = 0 < spanEnd && spanEnd < editable.length() && editable.charAt(spanEnd) == '\n' ? spanEnd - 1 : spanEnd;
-            editable.removeSpan(span);
-            editable.setSpan(new KnifeQuoteSpan(quoteColor, quoteStripeWidth, quoteGapWidth), spanStart, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            int spanStart = text.getSpanStart(span);
+            int spanEnd = text.getSpanEnd(span);
+            spanEnd = spanEnd < length && text.charAt(spanEnd) == '\n' ? spanEnd - 1 : spanEnd;
+            text.removeSpan(span);
+            text.setSpan(new KnifeQuoteSpan(quoteColor, quoteStripeWidth, quoteGapWidth),
+                    spanStart, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         }
 
-        URLSpan[] urlSpans = editable.getSpans(start, end, URLSpan.class);
+        URLSpan[] urlSpans = text.getSpans(0, length, URLSpan.class);
         for (URLSpan span : urlSpans) {
-            int spanStart = editable.getSpanStart(span);
-            int spanEnd = editable.getSpanEnd(span);
-            editable.removeSpan(span);
-            editable.setSpan(new KnifeURLSpan(span.getURL(), linkColor, linkUnderline), spanStart, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            int spanStart = text.getSpanStart(span);
+            int spanEnd = text.getSpanEnd(span);
+            text.removeSpan(span);
+            text.setSpan(new KnifeURLSpan(span.getURL(), linkColor, linkUnderline),
+                    spanStart, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         }
     }
+
 }

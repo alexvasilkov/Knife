@@ -31,12 +31,13 @@ import android.text.style.StyleSpan;
 import android.text.style.URLSpan;
 import android.text.style.UnderlineSpan;
 
-public class KnifeParser {
-    public static Spanned fromHtml(String source) {
+class KnifeParser {
+
+    static Spanned fromHtml(String source) {
         return Html.fromHtml(source, null, new KnifeTagHandler());
     }
 
-    public static String toHtml(Spanned text) {
+    static String toHtml(Spanned text) {
         StringBuilder out = new StringBuilder();
         withinHtml(out, text);
         return tidy(out.toString());
@@ -91,14 +92,15 @@ public class KnifeParser {
 
         for (int i = start; i < end; i = next) {
             next = text.nextSpanTransition(i, end, BulletSpan.class);
+            int spansCount = text.getSpans(i, next, BulletSpan.class).length;
 
-            BulletSpan[] spans = text.getSpans(i, next, BulletSpan.class);
-            for (BulletSpan span : spans) {
+            for (int s = 0; s < spansCount; s++) {
                 out.append("<li>");
             }
 
             withinContent(out, text, i, next);
-            for (BulletSpan span : spans) {
+
+            for (int s = 0; s < spansCount; s++) {
                 out.append("</li>");
             }
         }
@@ -111,14 +113,15 @@ public class KnifeParser {
 
         for (int i = start; i < end; i = next) {
             next = text.nextSpanTransition(i, end, QuoteSpan.class);
+            int spansCount = text.getSpans(i, next, QuoteSpan.class).length;
 
-            QuoteSpan[] quotes = text.getSpans(i, next, QuoteSpan.class);
-            for (QuoteSpan quote : quotes) {
+            for (int s = 0; s < spansCount; s++) {
                 out.append("<blockquote>");
             }
 
             withinContent(out, text, i, next);
-            for (QuoteSpan quote : quotes) {
+
+            for (int s = 0; s < spansCount; s++) {
                 out.append("</blockquote>");
             }
         }
@@ -143,15 +146,19 @@ public class KnifeParser {
         }
     }
 
-    // Copy from https://android.googlesource.com/platform/frameworks/base/+/master/core/java/android/text/Html.java,
+    // Copy from https://android.googlesource
+    // .com/platform/frameworks/base/+/master/core/java/android/text/Html.java,
     // remove some tag because we don't need them in Knife.
-    private static void withinParagraph(StringBuilder out, Spanned text, int start, int end, int nl) {
+    private static void withinParagraph(StringBuilder out, Spanned text,
+            int start, int end, int nl) {
+
         int next;
 
         for (int i = start; i < end; i = next) {
             next = text.nextSpanTransition(i, end, CharacterStyle.class);
 
             CharacterStyle[] spans = text.getSpans(i, next, CharacterStyle.class);
+            //noinspection ForLoopReplaceableByForEach - For better performance
             for (int j = 0; j < spans.length; j++) {
                 if (spans[j] instanceof StyleSpan) {
                     int style = ((StyleSpan) spans[j]).getStyle();
@@ -258,6 +265,8 @@ public class KnifeParser {
     }
 
     private static String tidy(String html) {
-        return html.replaceAll("</ul>(<br>)?", "</ul>").replaceAll("</blockquote>(<br>)?", "</blockquote>");
+        return html.replace("</ul><br>", "</ul>")
+                .replace("</blockquote><br>", "</blockquote>");
     }
+
 }

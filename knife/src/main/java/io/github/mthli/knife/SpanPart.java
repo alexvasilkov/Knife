@@ -16,24 +16,20 @@
 
 package io.github.mthli.knife;
 
-public class KnifePart {
-    private int start;
-    private int end;
+import android.text.Spanned;
 
-    public KnifePart(int start, int end) {
-        this.start = start;
-        this.end = end;
+class SpanPart {
+
+    final int start;
+    final int end;
+
+    SpanPart(Spanned spanned, Object span) {
+        this.start = spanned.getSpanStart(span);
+        this.end = spanned.getSpanEnd(span);
     }
 
-    public int getStart() {
-        return start;
-    }
-
-    public int getEnd() {
-        return end;
-    }
-
-    public boolean isValid() {
+    boolean isValid() {
         return start < end;
     }
+
 }

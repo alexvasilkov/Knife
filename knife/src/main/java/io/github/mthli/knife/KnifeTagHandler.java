@@ -29,34 +29,31 @@ import android.text.style.StrikethroughSpan;
 
 import org.xml.sax.XMLReader;
 
-public class KnifeTagHandler implements Html.TagHandler {
-    private static final String BULLET_LI = "li";
-    private static final String STRIKETHROUGH_S = "s";
-    private static final String STRIKETHROUGH_STRIKE = "strike";
-    private static final String STRIKETHROUGH_DEL = "del";
-
-    private static class Li {}
-    private static class Strike {}
+class KnifeTagHandler implements Html.TagHandler {
 
     @Override
     public void handleTag(boolean opening, String tag, Editable output, XMLReader xmlReader) {
         if (opening) {
-            if (tag.equalsIgnoreCase(BULLET_LI)) {
+            if (tag.equalsIgnoreCase("li")) {
                 if (output.length() > 0 && output.charAt(output.length() - 1) != '\n') {
                     output.append("\n");
                 }
-                start(output, new Li());
-            } else if (tag.equalsIgnoreCase(STRIKETHROUGH_S) || tag.equalsIgnoreCase(STRIKETHROUGH_STRIKE) || tag.equalsIgnoreCase(STRIKETHROUGH_DEL)) {
-                start(output, new Strike());
+                start(output, new BulletSpan());
+            } else if (tag.equalsIgnoreCase("s")
+                    || tag.equalsIgnoreCase("strike")
+                    || tag.equalsIgnoreCase("del")) {
+                start(output, new StrikethroughSpan());
             }
         } else {
-            if (tag.equalsIgnoreCase(BULLET_LI)) {
+            if (tag.equalsIgnoreCase("li")) {
                 if (output.length() > 0 && output.charAt(output.length() - 1) != '\n') {
                     output.append("\n");
                 }
-                end(output, Li.class, new BulletSpan());
-            } else if (tag.equalsIgnoreCase(STRIKETHROUGH_S) || tag.equalsIgnoreCase(STRIKETHROUGH_STRIKE) || tag.equalsIgnoreCase(STRIKETHROUGH_DEL)) {
-                end(output, Strike.class, new StrikethroughSpan());
+                end(output, BulletSpan.class, new BulletSpan());
+            } else if (tag.equalsIgnoreCase("s")
+                    || tag.equalsIgnoreCase("strike")
+                    || tag.equalsIgnoreCase("del")) {
+                end(output, StrikethroughSpan.class, new StrikethroughSpan());
             }
         }
     }
@@ -93,4 +90,5 @@ public class KnifeTagHandler implements Html.TagHandler {
             return null;
         }
     }
+
 }

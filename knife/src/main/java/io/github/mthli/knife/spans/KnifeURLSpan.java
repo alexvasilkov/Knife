@@ -14,13 +14,14 @@
  * limitations under the License.
  */
 
-package io.github.mthli.knife;
+package io.github.mthli.knife.spans;
 
 import android.os.Parcel;
 import android.text.TextPaint;
 import android.text.style.URLSpan;
 
 public class KnifeURLSpan extends URLSpan {
+
     private int linkColor = 0;
     private boolean linkUnderline = true;
 
@@ -30,6 +31,7 @@ public class KnifeURLSpan extends URLSpan {
         this.linkUnderline = linkUnderline;
     }
 
+    @SuppressWarnings("unused") // Parcelable implementation
     public KnifeURLSpan(Parcel src) {
         super(src);
         this.linkColor = src.readInt();
@@ -48,4 +50,5 @@ public class KnifeURLSpan extends URLSpan {
         ds.setColor(linkColor != 0 ? linkColor : ds.linkColor);
         ds.setUnderlineText(linkUnderline);
     }
+
 }

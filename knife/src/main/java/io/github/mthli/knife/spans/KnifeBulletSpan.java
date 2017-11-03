@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.github.mthli.knife;
+package io.github.mthli.knife.spans;
 
 import android.graphics.Canvas;
 import android.graphics.Paint;
@@ -25,6 +25,7 @@ import android.text.Spanned;
 import android.text.style.BulletSpan;
 
 public class KnifeBulletSpan extends BulletSpan {
+
     private static final int DEFAULT_COLOR = 0;
     private static final int DEFAULT_RADIUS = 3;
     private static final int DEFAULT_GAP_WIDTH = 2;
@@ -40,6 +41,7 @@ public class KnifeBulletSpan extends BulletSpan {
         this.bulletGapWidth = bulletGapWidth != 0 ? bulletGapWidth : DEFAULT_GAP_WIDTH;
     }
 
+    @SuppressWarnings("unused") // Parcelable implementation
     public KnifeBulletSpan(Parcel src) {
         super(src);
         this.bulletColor = src.readInt();
@@ -62,9 +64,10 @@ public class KnifeBulletSpan extends BulletSpan {
 
     @Override
     public void drawLeadingMargin(Canvas c, Paint p, int x, int dir,
-                                  int top, int baseline, int bottom,
-                                  CharSequence text, int start, int end,
-                                  boolean first, Layout l) {
+            int top, int baseline, int bottom,
+            CharSequence text, int start, int end,
+            boolean first, Layout l) {
+
         if (((Spanned) text).getSpanStart(this) == start) {
             Paint.Style style = p.getStyle();
 
@@ -91,4 +94,5 @@ public class KnifeBulletSpan extends BulletSpan {
             p.setStyle(style);
         }
     }
+
 }
