@@ -177,6 +177,13 @@ public class Knife {
         currentUrl = null;
     }
 
+    public Span<String> getLink(int start) {
+        final Spannable text = textView.getEditableText();
+        final URLSpan[] urls = text.getSpans(start, start, URLSpan.class);
+        return urls.length == 0 ? null : new Span<>(urls[0].getURL(),
+                text.getSpanStart(urls[0]), text.getSpanEnd(urls[0]));
+    }
+
     // Spans classes ===============================================================================
 
     private void switchToKnifeStyle(Spannable text) {

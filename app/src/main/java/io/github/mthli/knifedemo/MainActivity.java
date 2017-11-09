@@ -13,6 +13,7 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import io.github.mthli.knife.Knife;
+import io.github.mthli.knife.Span;
 
 public class MainActivity extends Activity {
     private static final String EXAMPLE = ""
@@ -32,7 +33,7 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        textView = findViewById(R.id.knife);
+        textView = findViewById(R.id.text);
 
         knife = new Knife(textView);
         knife.setHtml(EXAMPLE);
@@ -48,7 +49,7 @@ public class MainActivity extends Activity {
         setButton(R.id.link, R.string.toast_insert_link, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                showLinkDialog();
+                showLinkDialog(knife.getLink(textView.getSelectionStart()));
             }
         });
 
@@ -126,39 +127,38 @@ public class MainActivity extends Activity {
         });
     }
 
-    private void showLinkDialog() {
-        final int start = textView.getSelectionStart();
-        final int end = textView.getSelectionEnd();
+    private void showLinkDialog(Span<String> currentSpan) {
+        final int start = currentSpan == null ? textView.getSelectionStart() : currentSpan.start;
+        final int end = currentSpan == null ? textView.getSelectionEnd() : currentSpan.end;
+        final String link = currentSpan == null ? null : currentSpan.data;
+
+        if (start == end) {
+            return; // No text selected for link
+        }
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setCancelable(false);
 
         View view = getLayoutInflater().inflate(R.layout.dialog_link, null, false);
-        final EditText editText = view.findViewById(R.id.edit);
         builder.setView(view);
         builder.setTitle(R.string.dialog_title);
+
+        final EditText editText = view.findViewById(R.id.edit);
+        editText.setText(link);
 
         builder.setPositiveButton(R.string.dialog_button_ok, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                String link = editText.getText().toString().trim();
-                if (TextUtils.isEmpty(link)) {
-                    return;
+                final String input = editText.getText().toString().trim();
+                if (TextUtils.isEmpty(input)) {
+                    knife.remove(Knife.URL, start, end);
+                } else {
+                    // When KnifeText lose focus, use this saved start / end positions
+                    knife.setLink(input, start, end);
                 }
-
-                // When KnifeText lose focus, use this saved start / end positions
-                knife.setLink(link, start, end);
             }
         });
-
-        builder.setNegativeButton(R.string.dialog_button_cancel,
-                new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        // DO NOTHING HERE
-                    }
-                });
-
+        builder.setNegativeButton(R.string.dialog_button_cancel, null);
         builder.create().show();
     }
 
