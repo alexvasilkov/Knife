@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <declare-styleable name="KnifeText">
-        <attr name="bulletColor" format="reference|color" />
-        <attr name="bulletRadius" format="reference|dimension" />
-        <attr name="bulletGap" format="reference|dimension" />
-        <attr name="linkColor" format="reference|color" />
-        <attr name="linkUnderline" format="reference|boolean" />
-        <attr name="quoteColor" format="reference|color" />
-        <attr name="quoteStripeWidth" format="reference|dimension" />
-        <attr name="quoteGap" format="reference|dimension" />
+    <declare-styleable name="Knife">
+        <attr name="knife_bulletColor" format="reference|color" />
+        <attr name="knife_bulletRadius" format="reference|dimension" />
+        <attr name="knife_bulletGap" format="reference|dimension" />
+        <attr name="knife_linkColor" format="reference|color" />
+        <attr name="knife_linkUnderline" format="reference|boolean" />
+        <attr name="knife_quoteColor" format="reference|color" />
+        <attr name="knife_quoteStripeWidth" format="reference|dimension" />
+        <attr name="knife_quoteGap" format="reference|dimension" />
     </declare-styleable>
 
 </resources>

@@ -13,7 +13,6 @@ import android.text.style.StrikethroughSpan;
 import android.text.style.StyleSpan;
 import android.text.style.URLSpan;
 import android.text.style.UnderlineSpan;
-import android.util.AttributeSet;
 import android.util.Log;
 import android.util.TypedValue;
 import android.widget.TextView;
@@ -49,10 +48,6 @@ public class Knife {
     private String currentUrl;
 
     public Knife(TextView textView) {
-        this(textView, null);
-    }
-
-    public Knife(TextView textView, AttributeSet attrs) {
         this.textView = textView;
 
         bulletRadius = convertDpToPixels(bulletRadius);
@@ -60,16 +55,17 @@ public class Knife {
         quoteStripeWidth = convertDpToPixels(quoteStripeWidth);
         quoteGap = convertDpToPixels(quoteGap);
 
-        TypedArray arr = textView.getContext().obtainStyledAttributes(attrs, R.styleable.KnifeText);
-        bulletColor = arr.getColor(R.styleable.KnifeText_bulletColor, bulletColor);
-        bulletRadius = arr.getDimensionPixelSize(R.styleable.KnifeText_bulletRadius, bulletRadius);
-        bulletGap = arr.getDimensionPixelSize(R.styleable.KnifeText_bulletGap, bulletGap);
-        linkColor = arr.getColor(R.styleable.KnifeText_linkColor, linkColor);
-        linkUnderline = arr.getBoolean(R.styleable.KnifeText_linkColor, linkUnderline);
-        quoteColor = arr.getColor(R.styleable.KnifeText_quoteColor, 0);
+        TypedArray arr = textView.getContext().obtainStyledAttributes(null, R.styleable.Knife);
+        bulletColor = arr.getColor(R.styleable.Knife_knife_bulletColor, bulletColor);
+        bulletRadius = arr.getDimensionPixelSize(
+                R.styleable.Knife_knife_bulletRadius, bulletRadius);
+        bulletGap = arr.getDimensionPixelSize(R.styleable.Knife_knife_bulletGap, bulletGap);
+        linkColor = arr.getColor(R.styleable.Knife_knife_linkColor, linkColor);
+        linkUnderline = arr.getBoolean(R.styleable.Knife_knife_linkColor, linkUnderline);
+        quoteColor = arr.getColor(R.styleable.Knife_knife_quoteColor, 0);
         quoteStripeWidth = arr.getDimensionPixelSize(
-                R.styleable.KnifeText_quoteStripeWidth, quoteStripeWidth);
-        quoteGap = arr.getDimensionPixelSize(R.styleable.KnifeText_quoteGap, quoteGap);
+                R.styleable.Knife_knife_quoteStripeWidth, quoteStripeWidth);
+        quoteGap = arr.getDimensionPixelSize(R.styleable.Knife_knife_quoteGap, quoteGap);
         arr.recycle();
 
 

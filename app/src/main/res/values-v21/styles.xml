@@ -2,15 +2,15 @@
 
 <resources>
 
-    <style name="MainActivityTheme" parent="android:Theme.Material">
+    <style name="AppBaseTheme" parent="android:Theme.Material">
         <item name="android:colorPrimary">@color/primary</item>
         <item name="android:colorPrimaryDark">@color/primary_dark</item>
         <item name="android:colorAccent">@color/primary</item>
         <item name="android:textColorHighlight">@color/primary_light</item>
-        <item name="android:alertDialogTheme">@style/MainActivityTheme.AlertDialogTheme</item>
+        <item name="android:alertDialogTheme">@style/App.AlertDialogTheme</item>
     </style>
 
-    <style name="MainActivityTheme.AlertDialogTheme" parent="android:Theme.Material.Dialog.Alert">
+    <style name="App.AlertDialogTheme" parent="android:Theme.Material.Dialog.Alert">
         <item name="android:colorPrimary">@color/primary</item>
         <item name="android:colorPrimaryDark">@color/primary_dark</item>
         <item name="android:colorAccent">@color/primary</item>

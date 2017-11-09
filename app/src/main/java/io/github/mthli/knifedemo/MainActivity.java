@@ -5,12 +5,14 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.view.ActionMode;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 
 import io.github.mthli.knife.Knife;
-import io.github.mthli.knife.KnifeText;
 
 public class MainActivity extends Activity {
     private static final String EXAMPLE = ""
@@ -22,7 +24,7 @@ public class MainActivity extends Activity {
             + "<blockquote>Quote</blockquote>"
             + "<a href=\"https://google.com/\">Link</a><br><br>";
 
-    private KnifeText textView;
+    private EditText textView;
     private Knife knife;
 
     @Override
@@ -32,11 +34,10 @@ public class MainActivity extends Activity {
 
         textView = findViewById(R.id.knife);
 
-        knife = textView.getKnife();
+        knife = new Knife(textView);
         knife.setHtml(EXAMPLE);
 
-        textView.setSelection(textView.getEditableText().length());
-
+        // Regular style controls
         setFormatButton(R.id.bold, R.string.toast_bold, Knife.BOLD);
         setFormatButton(R.id.italic, R.string.toast_italic, Knife.ITALIC);
         setFormatButton(R.id.underline, R.string.toast_underline, Knife.UNDERLINE);
@@ -63,6 +64,43 @@ public class MainActivity extends Activity {
             public void onClick(View v) {
                 textView.setText(knife.getHtml());
                 findViewById(R.id.tools).setVisibility(View.GONE);
+            }
+        });
+
+
+        // Selection menu formatting options
+        textView.setCustomSelectionActionModeCallback(new ActionMode.Callback() {
+            @Override
+            public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+                menu.add(Menu.NONE, R.string.toast_bold, Menu.NONE, R.string.toast_bold);
+                menu.add(Menu.NONE, R.string.toast_italic, Menu.NONE, R.string.toast_italic);
+                menu.add(Menu.NONE, R.string.toast_underline, Menu.NONE, R.string.toast_underline);
+                return true;
+            }
+
+            @Override
+            public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+                return false;
+            }
+
+            @Override
+            public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+                switch (item.getItemId()) {
+                    case R.string.toast_bold:
+                        knife.toggle(Knife.BOLD);
+                        return true;
+                    case R.string.toast_italic:
+                        knife.toggle(Knife.ITALIC);
+                        return true;
+                    case R.string.toast_underline:
+                        knife.toggle(Knife.UNDERLINE);
+                        return true;
+                }
+                return false;
+            }
+
+            @Override
+            public void onDestroyActionMode(ActionMode mode) {
             }
         });
     }

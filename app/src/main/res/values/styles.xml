@@ -1,7 +1,16 @@
 <resources>
 
-    <style name="MainActivityTheme" parent="android:Theme.DeviceDefault">
-        <!-- DO NOTHING HERE -->
+    <style name="AppBaseTheme" parent="android:Theme.DeviceDefault" />
+
+    <style name="MainActivityTheme" parent="AppBaseTheme">
+        <item name="knife_bulletColor">@color/primary</item>
+        <item name="knife_bulletGap">8dp</item>
+        <item name="knife_bulletRadius">2dp</item>
+        <item name="knife_linkColor">@color/primary</item>
+        <item name="knife_linkUnderline">true</item>
+        <item name="knife_quoteColor">@color/primary</item>
+        <item name="knife_quoteGap">8dp</item>
+        <item name="knife_quoteStripeWidth">2dp</item>
     </style>
 
     <style name="FormatButton">
