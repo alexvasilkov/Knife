@@ -265,7 +265,9 @@ class KnifeParser {
     }
 
     private static String tidy(String html) {
-        return html.replace("</ul><br>", "</ul>")
+        return html
+                .replace("</ul><ul>", "")
+                .replace("</ul><br>", "</ul>")
                 .replace("</blockquote><br>", "</blockquote>");
     }
 
