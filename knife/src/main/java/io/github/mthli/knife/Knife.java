@@ -114,12 +114,19 @@ public class Knife {
         builder.append(KnifeParser.fromHtml(html));
         switchToKnifeStyle(builder);
         textView.setText(builder);
-
-        logSpans();
     }
 
     public String getHtml() {
-        return KnifeParser.toHtml(textView.getEditableText());
+        // Removing system underline spans before converting
+        final Spannable text = textView.getEditableText();
+        final Object[] spans = text.getSpans(0, text.length(), Object.class);
+        for (Object span : spans) {
+            if (span.getClass() == UnderlineSpan.class) {
+                text.removeSpan(span);
+            }
+        }
+
+        return KnifeParser.toHtml(text);
     }
 
     public void set(Class spanClass) {
@@ -258,11 +265,25 @@ public class Knife {
         removeSpan(text, spanClass, start, end);
 
         if (start != end) {
-            text.setSpan(createSpan(spanClass), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-
             if (isSplittableSpan(spanClass)) {
-                // TODO: merge sides
+                // Merging with previous spans
+                final Object[] spansBefore = text.getSpans(start, start, spanClass);
+                //noinspection ForLoopReplaceableByForEach
+                for (int i = 0; i < spansBefore.length; i++) {
+                    start = Math.min(start, text.getSpanStart(spansBefore[i]));
+                    text.removeSpan(spansBefore[i]);
+                }
+
+                // Merging with next spans
+                final Object[] spansAfter = text.getSpans(end, end, spanClass);
+                //noinspection ForLoopReplaceableByForEach
+                for (int i = 0; i < spansAfter.length; i++) {
+                    end = Math.max(end, text.getSpanEnd(spansAfter[i]));
+                    text.removeSpan(spansAfter[i]);
+                }
             }
+
+            text.setSpan(createSpan(spanClass), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         }
     }
 
