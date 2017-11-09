@@ -26,19 +26,16 @@ import android.text.style.BulletSpan;
 
 public class KnifeBulletSpan extends BulletSpan {
 
-    private static final int DEFAULT_COLOR = 0;
-    private static final int DEFAULT_RADIUS = 3;
-    private static final int DEFAULT_GAP_WIDTH = 2;
     private static Path bulletPath = null;
 
-    private int bulletColor = DEFAULT_COLOR;
-    private int bulletRadius = DEFAULT_RADIUS;
-    private int bulletGapWidth = DEFAULT_GAP_WIDTH;
+    private final int bulletColor;
+    private final int bulletRadius;
+    private final int bulletGap;
 
-    public KnifeBulletSpan(int bulletColor, int bulletRadius, int bulletGapWidth) {
-        this.bulletColor = bulletColor != 0 ? bulletColor : DEFAULT_COLOR;
-        this.bulletRadius = bulletRadius != 0 ? bulletRadius : DEFAULT_RADIUS;
-        this.bulletGapWidth = bulletGapWidth != 0 ? bulletGapWidth : DEFAULT_GAP_WIDTH;
+    public KnifeBulletSpan(int bulletColor, int bulletRadius, int bulletGap) {
+        this.bulletColor = bulletColor;
+        this.bulletRadius = bulletRadius;
+        this.bulletGap = bulletGap;
     }
 
     @SuppressWarnings("unused") // Parcelable implementation
@@ -46,7 +43,7 @@ public class KnifeBulletSpan extends BulletSpan {
         super(src);
         this.bulletColor = src.readInt();
         this.bulletRadius = src.readInt();
-        this.bulletGapWidth = src.readInt();
+        this.bulletGap = src.readInt();
     }
 
     @Override
@@ -54,12 +51,12 @@ public class KnifeBulletSpan extends BulletSpan {
         super.writeToParcel(dest, flags);
         dest.writeInt(bulletColor);
         dest.writeInt(bulletRadius);
-        dest.writeInt(bulletGapWidth);
+        dest.writeInt(bulletGap);
     }
 
     @Override
     public int getLeadingMargin(boolean first) {
-        return 2 * bulletRadius + bulletGapWidth;
+        return 2 * bulletRadius + bulletGap;
     }
 
     @Override

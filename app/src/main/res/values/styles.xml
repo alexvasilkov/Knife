@@ -4,4 +4,11 @@
         <!-- DO NOTHING HERE -->
     </style>
 
+    <style name="FormatButton">
+        <item name="android:layout_width">48dp</item>
+        <item name="android:layout_height">48dp</item>
+        <item name="android:background">?android:selectableItemBackground</item>
+        <item name="android:scaleType">center</item>
+    </style>
+
 </resources>

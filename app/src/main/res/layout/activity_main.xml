@@ -1,9 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout
+<merge
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <io.github.mthli.knife.KnifeText
+        android:id="@+id/knife"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginBottom="48dp"
+        android:gravity="top"
+        android:padding="16dp"
+        android:textColorLink="@color/primary"
+        app:bulletColor="@color/primary"
+        app:bulletGap="8dp"
+        app:bulletRadius="2dp"
+        app:linkColor="@color/primary"
+        app:linkUnderline="true"
+        app:quoteColor="@color/primary"
+        app:quoteGap="8dp"
+        app:quoteStripeWidth="2dp" />
 
     <HorizontalScrollView
         android:id="@+id/tools"
@@ -15,104 +31,56 @@
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            tools:ignore="ContentDescription">
 
             <ImageButton
                 android:id="@+id/bold"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:background="?android:selectableItemBackground"
-                android:contentDescription="@null"
-                android:scaleType="center"
+                style="@style/FormatButton"
                 android:src="@drawable/ic_format_bold" />
 
             <ImageButton
                 android:id="@+id/italic"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:background="?android:selectableItemBackground"
-                android:contentDescription="@null"
-                android:scaleType="center"
+                style="@style/FormatButton"
                 android:src="@drawable/ic_format_italic" />
 
             <ImageButton
                 android:id="@+id/underline"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:background="?android:selectableItemBackground"
-                android:contentDescription="@null"
-                android:scaleType="center"
+                style="@style/FormatButton"
                 android:src="@drawable/ic_format_underline" />
 
             <ImageButton
                 android:id="@+id/strikethrough"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:background="?android:selectableItemBackground"
-                android:contentDescription="@null"
-                android:scaleType="center"
+                style="@style/FormatButton"
                 android:src="@drawable/ic_format_strikethrough" />
 
             <ImageButton
                 android:id="@+id/bullet"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:background="?android:selectableItemBackground"
-                android:contentDescription="@null"
-                android:scaleType="center"
+                style="@style/FormatButton"
                 android:src="@drawable/ic_format_bullet" />
 
             <ImageButton
                 android:id="@+id/quote"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:background="?android:selectableItemBackground"
-                android:contentDescription="@null"
-                android:scaleType="center"
+                style="@style/FormatButton"
                 android:src="@drawable/ic_format_quote" />
 
             <ImageButton
                 android:id="@+id/link"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:background="?android:selectableItemBackground"
-                android:contentDescription="@null"
-                android:scaleType="center"
+                style="@style/FormatButton"
                 android:src="@drawable/ic_insert_link" />
 
             <ImageButton
                 android:id="@+id/clear"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:background="?android:selectableItemBackground"
-                android:contentDescription="@null"
-                android:scaleType="center"
+                style="@style/FormatButton"
                 android:src="@drawable/ic_format_clear" />
+
+            <ImageButton
+                android:id="@+id/code"
+                style="@style/FormatButton"
+                android:src="@drawable/ic_code" />
 
         </LinearLayout>
 
     </HorizontalScrollView>
 
-    <io.github.mthli.knife.KnifeText
-        android:id="@+id/knife"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginBottom="48dp"
-        android:background="@android:color/transparent"
-        android:gravity="top|start"
-        android:paddingEnd="16dp"
-        android:paddingLeft="16dp"
-        android:paddingRight="16dp"
-        android:paddingStart="16dp"
-        android:paddingTop="16dp"
-        android:scrollbars="vertical"
-        app:bulletColor="@color/blue_500"
-        app:bulletGapWidth="@dimen/bullet_gap_width"
-        app:bulletRadius="@dimen/bullet_radius"
-        app:linkColor="@color/blue_500"
-        app:linkUnderline="true"
-        app:quoteCapWidth="@dimen/quote_gap_width"
-        app:quoteColor="@color/blue_500"
-        app:quoteStripeWidth="@dimen/quote_stripe_width" />
-
-</FrameLayout>
+</merge>

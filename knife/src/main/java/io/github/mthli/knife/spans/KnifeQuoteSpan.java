@@ -24,18 +24,14 @@ import android.text.style.QuoteSpan;
 
 public class KnifeQuoteSpan extends QuoteSpan {
 
-    private static final int DEFAULT_STRIPE_WIDTH = 2;
-    private static final int DEFAULT_GAP_WIDTH = 2;
-    private static final int DEFAULT_COLOR = 0xff0000ff;
-
     private int quoteColor;
     private int quoteStripeWidth;
-    private int quoteGapWidth;
+    private int quoteGap;
 
-    public KnifeQuoteSpan(int quoteColor, int quoteStripeWidth, int quoteGapWidth) {
-        this.quoteColor = quoteColor != 0 ? quoteColor : DEFAULT_COLOR;
-        this.quoteStripeWidth = quoteStripeWidth != 0 ? quoteStripeWidth : DEFAULT_STRIPE_WIDTH;
-        this.quoteGapWidth = quoteGapWidth != 0 ? quoteGapWidth : DEFAULT_GAP_WIDTH;
+    public KnifeQuoteSpan(int quoteColor, int quoteStripeWidth, int quoteGap) {
+        this.quoteColor = quoteColor;
+        this.quoteStripeWidth = quoteStripeWidth;
+        this.quoteGap = quoteGap;
     }
 
     @SuppressWarnings("unused") // Parcelable implementation
@@ -43,7 +39,7 @@ public class KnifeQuoteSpan extends QuoteSpan {
         super(src);
         this.quoteColor = src.readInt();
         this.quoteStripeWidth = src.readInt();
-        this.quoteGapWidth = src.readInt();
+        this.quoteGap = src.readInt();
     }
 
     @Override
@@ -51,12 +47,12 @@ public class KnifeQuoteSpan extends QuoteSpan {
         super.writeToParcel(dest, flags);
         dest.writeInt(quoteColor);
         dest.writeInt(quoteStripeWidth);
-        dest.writeInt(quoteGapWidth);
+        dest.writeInt(quoteGap);
     }
 
     @Override
     public int getLeadingMargin(boolean first) {
-        return quoteStripeWidth + quoteGapWidth;
+        return quoteStripeWidth + quoteGap;
     }
 
     @Override
@@ -69,7 +65,7 @@ public class KnifeQuoteSpan extends QuoteSpan {
 
         p.setStyle(Paint.Style.FILL);
         p.setColor(quoteColor);
-        c.drawRect(x, top, x + dir * quoteGapWidth, bottom, p);
+        c.drawRect(x, top, x + dir * quoteStripeWidth, bottom, p);
 
         p.setStyle(style);
         p.setColor(color);

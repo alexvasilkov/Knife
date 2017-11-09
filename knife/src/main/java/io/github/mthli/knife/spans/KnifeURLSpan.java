@@ -22,8 +22,8 @@ import android.text.style.URLSpan;
 
 public class KnifeURLSpan extends URLSpan {
 
-    private int linkColor = 0;
-    private boolean linkUnderline = true;
+    private int linkColor;
+    private boolean linkUnderline;
 
     public KnifeURLSpan(String url, int linkColor, boolean linkUnderline) {
         super(url);
