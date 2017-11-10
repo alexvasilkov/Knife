@@ -3,6 +3,7 @@ package io.github.mthli.knife;
 import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.text.Editable;
+import android.text.ParcelableSpan;
 import android.text.Selection;
 import android.text.SpanWatcher;
 import android.text.Spannable;
@@ -86,7 +87,10 @@ public class Knife {
             @Override
             public void afterTextChanged(Editable text) {
                 ensureSpanWatcher();
-                switchToKnifeStyle(text);
+
+                // Clearing underline span added by autocomplete keyboard and removing styling of
+                // copy-pasted text
+                clearNonKnifeStyles(text);
 
                 fixParagraphs(text, BULLET);
                 fixParagraphs(text, QUOTE);
@@ -96,16 +100,10 @@ public class Knife {
 
         spanWatcher = new SpanWatcher() {
             @Override
-            public void onSpanAdded(Spannable text, Object what, int start, int end) {
-                // We don't want someone else to draw underline
-                if (what.getClass() == UnderlineSpan.class) {
-                    text.removeSpan(what);
-                }
-            }
+            public void onSpanAdded(Spannable text, Object what, int start, int end) {}
 
             @Override
-            public void onSpanRemoved(Spannable text, Object what, int start, int end) {
-            }
+            public void onSpanRemoved(Spannable text, Object what, int start, int end) {}
 
             @Override
             public void onSpanChanged(Spannable text, Object what, int ostart, int oend,
@@ -264,9 +262,19 @@ public class Knife {
 
     // Spans classes ===============================================================================
 
+    private void clearNonKnifeStyles(Spannable text) {
+        final Object[] spans = text.getSpans(0, text.length(), ParcelableSpan.class);
+
+        //noinspection ForLoopReplaceableByForEach
+        for (int i = 0; i < spans.length; i++) {
+            if (!spans[i].getClass().getSimpleName().startsWith("Knife")) {
+                text.removeSpan(spans[i]);
+            }
+        }
+    }
+
     private void switchToKnifeStyle(Spannable text) {
-        final int length = text.length();
-        final Object[] spans = text.getSpans(0, length, Object.class);
+        final Object[] spans = text.getSpans(0, text.length(), Object.class);
 
         Object span;
         //noinspection ForLoopReplaceableByForEach
