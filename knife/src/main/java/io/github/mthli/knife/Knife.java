@@ -86,6 +86,7 @@ public class Knife {
             @Override
             public void afterTextChanged(Editable text) {
                 ensureSpanWatcher();
+                switchToKnifeStyle(text);
 
                 fixParagraphs(text, BULLET);
                 fixParagraphs(text, QUOTE);
@@ -263,7 +264,15 @@ public class Knife {
         final int length = text.length();
         final Object[] spans = text.getSpans(0, length, Object.class);
 
-        for (Object span : spans) {
+        Object span;
+        //noinspection ForLoopReplaceableByForEach
+        for (int i = 0; i < spans.length; i++) {
+            span = spans[i];
+
+            if (span.getClass().getSimpleName().startsWith("Knife")) {
+                continue;
+            }
+
             final int spanStart = text.getSpanStart(span);
             final int spanEnd = text.getSpanEnd(span);
 
