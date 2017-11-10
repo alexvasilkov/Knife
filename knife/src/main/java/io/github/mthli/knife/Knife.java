@@ -3,6 +3,8 @@ package io.github.mthli.knife;
 import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.text.Editable;
+import android.text.Selection;
+import android.text.SpanWatcher;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
@@ -21,20 +23,25 @@ import io.github.mthli.knife.spans.KnifeBoldSpan;
 import io.github.mthli.knife.spans.KnifeBulletSpan;
 import io.github.mthli.knife.spans.KnifeItalicSpan;
 import io.github.mthli.knife.spans.KnifeQuoteSpan;
+import io.github.mthli.knife.spans.KnifeStrikethroughSpan;
 import io.github.mthli.knife.spans.KnifeURLSpan;
+import io.github.mthli.knife.spans.KnifeUnderlineSpan;
 
 @SuppressWarnings({ "WeakerAccess", "unused" }) // Public API
 public class Knife {
 
     public static final Class BOLD = KnifeBoldSpan.class;
     public static final Class ITALIC = KnifeItalicSpan.class;
-    public static final Class UNDERLINE = UnderlineSpan.class;
-    public static final Class STRIKE = StrikethroughSpan.class;
+    public static final Class UNDERLINE = KnifeUnderlineSpan.class;
+    public static final Class STRIKE = KnifeStrikethroughSpan.class;
     public static final Class BULLET = KnifeBulletSpan.class;
     public static final Class QUOTE = KnifeQuoteSpan.class;
     public static final Class URL = KnifeURLSpan.class;
 
     private final TextView textView;
+
+    private OnSelectionChangedListener selectionListener;
+    private SpanWatcher spanWatcher;
 
     private int bulletColor = Color.BLUE;
     private int bulletRadius = 2;
@@ -47,7 +54,7 @@ public class Knife {
 
     private String currentUrl;
 
-    public Knife(TextView textView) {
+    public Knife(final TextView textView) {
         this.textView = textView;
 
         bulletRadius = convertDpToPixels(bulletRadius);
@@ -78,15 +85,62 @@ public class Knife {
 
             @Override
             public void afterTextChanged(Editable text) {
+                ensureSpanWatcher();
+
                 fixParagraphs(text, BULLET);
                 fixParagraphs(text, QUOTE);
             }
         });
+
+
+        spanWatcher = new SpanWatcher() {
+            @Override
+            public void onSpanAdded(Spannable text, Object what, int start, int end) {
+                // We don't want someone else to draw underline
+                if (what.getClass() == UnderlineSpan.class) {
+                    text.removeSpan(what);
+                }
+            }
+
+            @Override
+            public void onSpanRemoved(Spannable text, Object what, int start, int end) {
+            }
+
+            @Override
+            public void onSpanChanged(Spannable text, Object what, int ostart, int oend,
+                    int nstart, int nend) {
+                if (selectionListener != null) {
+                    if (what == Selection.SELECTION_END) {
+                        selectionListener.onSelectionChanged();
+                    }
+                }
+            }
+        };
+
+        ensureSpanWatcher();
     }
 
     private int convertDpToPixels(int value) {
         return Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, value,
                 textView.getResources().getDisplayMetrics()));
+    }
+
+    private void ensureSpanWatcher() {
+        final Spannable text = textView.getEditableText();
+        final SpanWatcher[] watchers = text.getSpans(0, 0, SpanWatcher.class);
+
+        boolean found = false;
+        //noinspection ForLoopReplaceableByForEach
+        for (int i = 0; i < watchers.length; i++) {
+            if (watchers[i] == spanWatcher) {
+                found = true;
+                break;
+            }
+        }
+
+        if (!found) {
+            text.setSpan(spanWatcher, 0, text.length(), Spanned.SPAN_INCLUSIVE_INCLUSIVE);
+        }
     }
 
 
@@ -113,16 +167,7 @@ public class Knife {
     }
 
     public String getHtml() {
-        // Removing system underline spans before converting
-        final Spannable text = textView.getEditableText();
-        final Object[] spans = text.getSpans(0, text.length(), Object.class);
-        for (Object span : spans) {
-            if (span.getClass() == UnderlineSpan.class) {
-                text.removeSpan(span);
-            }
-        }
-
-        return KnifeParser.toHtml(text);
+        return KnifeParser.toHtml(textView.getEditableText());
     }
 
     public void set(Class spanClass) {
@@ -134,6 +179,10 @@ public class Knife {
             setParagraph(textView.getEditableText(), spanClass, start, end);
         } else {
             setSpan(textView.getEditableText(), spanClass, start, end);
+        }
+
+        if (selectionListener != null) {
+            selectionListener.onSelectionChanged();
         }
     }
 
@@ -147,6 +196,22 @@ public class Knife {
         } else {
             removeSpan(textView.getEditableText(), spanClass, start, end);
         }
+
+        if (selectionListener != null) {
+            selectionListener.onSelectionChanged();
+        }
+    }
+
+    public boolean has(Class spanClass) {
+        return has(spanClass, textView.getSelectionStart(), textView.getSelectionEnd());
+    }
+
+    public boolean has(Class spanClass, int start, int end) {
+        if (isParagraphSpan(spanClass)) {
+            return isFullOfParagraphs(textView.getEditableText(), spanClass, start, end);
+        } else {
+            return isFullySpanned(textView.getEditableText(), spanClass, start, end);
+        }
     }
 
     public void toggle(Class spanClass) {
@@ -158,6 +223,10 @@ public class Knife {
             toggleParagraph(textView.getEditableText(), spanClass, start, end);
         } else {
             toggleSpan(textView.getEditableText(), spanClass, start, end);
+        }
+
+        if (selectionListener != null) {
+            selectionListener.onSelectionChanged();
         }
     }
 
@@ -184,6 +253,10 @@ public class Knife {
                 text.getSpanStart(urls[0]), text.getSpanEnd(urls[0]));
     }
 
+    public void setSelectionListener(final OnSelectionChangedListener listener) {
+        selectionListener = listener;
+    }
+
     // Spans classes ===============================================================================
 
     private void switchToKnifeStyle(Spannable text) {
@@ -191,32 +264,12 @@ public class Knife {
         final Object[] spans = text.getSpans(0, length, Object.class);
 
         for (Object span : spans) {
-            if (span instanceof BulletSpan) {
+            final int spanStart = text.getSpanStart(span);
+            final int spanEnd = text.getSpanEnd(span);
 
-                final int spanStart = text.getSpanStart(span);
-                final int spanEnd = text.getSpanEnd(span);
-                text.removeSpan(span);
-                setParagraph(text, BULLET, spanStart, spanEnd);
+            if (span instanceof StyleSpan) {
 
-            } else if (span instanceof QuoteSpan) {
-
-                final int spanStart = text.getSpanStart(span);
-                final int spanEnd = text.getSpanEnd(span);
-                text.removeSpan(span);
-                setParagraph(text, QUOTE, spanStart, spanEnd);
-
-            } else if (span instanceof URLSpan) {
-
-                final int spanStart = text.getSpanStart(span);
-                final int spanEnd = text.getSpanEnd(span);
-                text.removeSpan(span);
-                currentUrl = ((URLSpan) span).getURL();
-                setSpan(text, URL, spanStart, spanEnd);
-
-            } else if (span instanceof StyleSpan) {
                 final int style = ((StyleSpan) span).getStyle();
-                final int spanStart = text.getSpanStart(span);
-                final int spanEnd = text.getSpanEnd(span);
 
                 if (style == KnifeBoldSpan.STYLE) {
                     text.removeSpan(span);
@@ -225,10 +278,36 @@ public class Knife {
                     text.removeSpan(span);
                     setSpan(text, ITALIC, spanStart, spanEnd);
                 }
+
+            } else if (span instanceof UnderlineSpan) {
+
+                text.removeSpan(span);
+                setSpan(text, UNDERLINE, spanStart, spanEnd);
+
+            } else if (span instanceof StrikethroughSpan) {
+
+                text.removeSpan(span);
+                setSpan(text, STRIKE, spanStart, spanEnd);
+
+            } else if (span instanceof BulletSpan) {
+
+                text.removeSpan(span);
+                setParagraph(text, BULLET, spanStart, spanEnd);
+
+            } else if (span instanceof QuoteSpan) {
+
+                text.removeSpan(span);
+                setParagraph(text, QUOTE, spanStart, spanEnd);
+
+            } else if (span instanceof URLSpan) {
+
+                text.removeSpan(span);
+                currentUrl = ((URLSpan) span).getURL();
+                setSpan(text, URL, spanStart, spanEnd);
+                currentUrl = null;
+
             }
         }
-
-        currentUrl = null;
     }
 
     private Object createSpan(Class spanClass) {
@@ -237,9 +316,9 @@ public class Knife {
         } else if (spanClass == ITALIC) {
             return new KnifeItalicSpan();
         } else if (spanClass == UNDERLINE) {
-            return new UnderlineSpan();
+            return new KnifeUnderlineSpan();
         } else if (spanClass == STRIKE) {
-            return new StrikethroughSpan();
+            return new KnifeStrikethroughSpan();
         } else if (spanClass == BULLET) {
             return new KnifeBulletSpan(bulletColor, bulletRadius, bulletGap);
         } else if (spanClass == QUOTE) {
@@ -265,9 +344,18 @@ public class Knife {
     // Regular spans logic =========================================================================
 
     private void setSpan(Spannable text, Class spanClass, int start, int end) {
-        removeSpan(text, spanClass, start, end);
+        if (start == end) {
+            // Including span's end position
+            final Object[] spans = text.getSpans(start, end, spanClass);
+            //noinspection ForLoopReplaceableByForEach
+            for (int i = 0; i < spans.length; i++) {
+                if (text.getSpanEnd(spans[i]) == end) {
+                    setSpanFlag(text, spans[i], Spanned.SPAN_EXCLUSIVE_INCLUSIVE);
+                }
+            }
+        } else {
+            removeSpan(text, spanClass, start, end);
 
-        if (start != end) {
             if (isSplittableSpan(spanClass)) {
                 // Merging with previous spans
                 final Object[] spansBefore = text.getSpans(start, start, spanClass);
@@ -286,12 +374,21 @@ public class Knife {
                 }
             }
 
-            text.setSpan(createSpan(spanClass), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            text.setSpan(createSpan(spanClass), start, end, Spanned.SPAN_EXCLUSIVE_INCLUSIVE);
         }
     }
 
     private void removeSpan(Spannable text, Class spanClass, int start, int end) {
-        if (start != end) {
+        if (start == end) {
+            // Excluding span's end position
+            final Object[] spans = text.getSpans(start, end, spanClass);
+            //noinspection ForLoopReplaceableByForEach
+            for (int i = 0; i < spans.length; i++) {
+                if (text.getSpanEnd(spans[i]) == end) {
+                    setSpanFlag(text, spans[i], Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                }
+            }
+        } else {
             final Object[] spans = text.getSpans(start, end, spanClass);
 
             //noinspection ForLoopReplaceableByForEach
@@ -316,11 +413,21 @@ public class Knife {
     }
 
     private boolean isFullySpanned(Spannable text, Class spanClass, int start, int end) {
+        final Object[] spans = text.getSpans(start, end, spanClass);
+
         if (start == end) {
+            //noinspection ForLoopReplaceableByForEach
+            for (int i = 0; i < spans.length; i++) {
+                final int spanStart = text.getSpanStart(spans[i]);
+                final int spanEnd = text.getSpanEnd(spans[i]);
+                final int spanFlag = text.getSpanFlags(spans[i]);
+                if ((start > spanStart && end < spanEnd)
+                        || (end == spanEnd && spanFlag == Spanned.SPAN_EXCLUSIVE_INCLUSIVE)) {
+                    return true;
+                }
+            }
             return false;
         }
-
-        final Object[] spans = text.getSpans(start, end, spanClass);
 
         // Going through each character and checking if there is a span of given type for it
         for (int pos = start; pos < end; pos++) {
@@ -346,6 +453,13 @@ public class Knife {
         } else {
             setSpan(text, spanClass, start, end);
         }
+    }
+
+    private static void setSpanFlag(Spannable text, Object span, int flag) {
+        int spanStart = text.getSpanStart(span);
+        int spanEnd = text.getSpanEnd(span);
+        text.removeSpan(span);
+        text.setSpan(span, spanStart, spanEnd, flag);
     }
 
     // Paragraph spans logic =======================================================================
@@ -386,10 +500,14 @@ public class Knife {
         start = findLineStart(text, start);
         end = findLineEnd(text, end);
 
+        if (start == end) {
+            return false;
+        }
+
         // Checking each line for paragraph span
         int lineStart = start;
 
-        while (lineStart < end) {
+        while (lineStart <= end) {
             int lineEnd = findLineEnd(text, lineStart);
             if (!containsSpan(text, spanClass, lineStart, lineEnd)) {
                 return false;
@@ -471,6 +589,11 @@ public class Knife {
 
     private static boolean containsSpan(Spanned text, Class spanClass, int start, int end) {
         return text.getSpans(start, end, spanClass).length > 0;
+    }
+
+
+    public interface OnSelectionChangedListener {
+        void onSelectionChanged();
     }
 
 }

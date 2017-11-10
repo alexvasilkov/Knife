@@ -104,6 +104,20 @@ public class MainActivity extends Activity {
             public void onDestroyActionMode(ActionMode mode) {
             }
         });
+
+
+        knife.setSelectionListener(new Knife.OnSelectionChangedListener() {
+            @Override
+            public void onSelectionChanged() {
+                toggleButton(R.id.bold, knife.has(Knife.BOLD));
+                toggleButton(R.id.italic, knife.has(Knife.ITALIC));
+                toggleButton(R.id.underline, knife.has(Knife.UNDERLINE));
+                toggleButton(R.id.strikethrough, knife.has(Knife.STRIKE));
+                toggleButton(R.id.bullet, knife.has(Knife.BULLET));
+                toggleButton(R.id.quote, knife.has(Knife.QUOTE));
+                toggleButton(R.id.link, knife.has(Knife.URL));
+            }
+        });
     }
 
     private void setButton(int id, final int textId, View.OnClickListener listener) {
@@ -125,6 +139,10 @@ public class MainActivity extends Activity {
                 knife.toggle(format);
             }
         });
+    }
+
+    private void toggleButton(int id, boolean selected) {
+        findViewById(id).setAlpha(selected ? 1f : 0.5f);
     }
 
     private void showLinkDialog(Span<String> currentSpan) {
