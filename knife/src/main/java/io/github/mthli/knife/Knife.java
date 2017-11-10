@@ -161,10 +161,14 @@ public class Knife {
     // Public methods ==============================================================================
 
     public void setHtml(String html) {
-        SpannableStringBuilder builder = new SpannableStringBuilder();
-        builder.append(KnifeParser.fromHtml(html));
-        switchToKnifeStyle(builder);
-        textView.setText(builder);
+        if (html == null) {
+            textView.setText(null);
+        } else {
+            SpannableStringBuilder builder = new SpannableStringBuilder();
+            builder.append(KnifeParser.fromHtml(html));
+            switchToKnifeStyle(builder);
+            textView.setText(builder);
+        }
     }
 
     public String getHtml() {
