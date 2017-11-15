@@ -1,7 +1,7 @@
 Knife
 ===
 
-[![Maven Central][https://img.shields.io/maven-central/v/com.alexvasilkov/knife-fork.svg?style=flat-square]][https://maven-badges.herokuapp.com/maven-central/com.alexvasilkov/knife-fork]
+[![Maven Central][mvn-img]][mvn-url]
 
 Knife is a rich text editor for Android. Just select text and use one line code to style it.
 
@@ -92,3 +92,7 @@ Add dependency to your `build.gradle` file:
     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
     See the License for the specific language governing permissions and
     limitations under the License.
+
+
+[mvn-url]: https://maven-badges.herokuapp.com/maven-central/com.alexvasilkov/knife-fork
+[mvn-img]: https://img.shields.io/maven-central/v/com.alexvasilkov/knife-fork.svg?style=flat-square
