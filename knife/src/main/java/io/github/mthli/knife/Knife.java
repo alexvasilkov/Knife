@@ -100,7 +100,12 @@ public class Knife {
 
         spanWatcher = new SpanWatcher() {
             @Override
-            public void onSpanAdded(Spannable text, Object what, int start, int end) {}
+            public void onSpanAdded(Spannable text, Object what, int start, int end) {
+                // We don't want someone else to draw underline
+                if (what.getClass() == UnderlineSpan.class) {
+                    text.removeSpan(what);
+                }
+            }
 
             @Override
             public void onSpanRemoved(Spannable text, Object what, int start, int end) {}
