@@ -7,6 +7,7 @@ import android.text.ParcelableSpan;
 import android.text.Selection;
 import android.text.SpanWatcher;
 import android.text.Spannable;
+import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.TextWatcher;
@@ -130,7 +131,7 @@ public class Knife {
     }
 
     private void ensureSpanWatcher() {
-        final Spannable text = textView.getEditableText();
+        final Spannable text = getText();
         final SpanWatcher[] watchers = text.getSpans(0, 0, SpanWatcher.class);
 
         boolean found = false;
@@ -151,7 +152,7 @@ public class Knife {
     // Helper ======================================================================================
 
     private void logSpans() {
-        final Spanned text = textView.getEditableText();
+        final Spanned text = getText();
         for (Object span : text.getSpans(0, text.length(), Object.class)) {
             int start = text.getSpanStart(span);
             int end = text.getSpanEnd(span);
@@ -160,6 +161,15 @@ public class Knife {
         }
     }
 
+    private Spannable getText() {
+        final CharSequence text = textView.getText();
+        if (text instanceof Spannable) {
+            return (Spannable) text;
+        } else {
+            textView.setText(new SpannableString(text));
+            return (Spannable) textView.getText();
+        }
+    }
 
     // Public methods ==============================================================================
 
@@ -175,7 +185,7 @@ public class Knife {
     }
 
     public String getHtml() {
-        return KnifeParser.toHtml(textView.getEditableText());
+        return KnifeParser.toHtml(getText());
     }
 
     public void set(Class spanClass) {
@@ -184,9 +194,9 @@ public class Knife {
 
     public void set(Class spanClass, int start, int end) {
         if (isParagraphSpan(spanClass)) {
-            setParagraph(textView.getEditableText(), spanClass, start, end);
+            setParagraph(getText(), spanClass, start, end);
         } else {
-            setSpan(textView.getEditableText(), spanClass, start, end);
+            setSpan(getText(), spanClass, start, end);
         }
 
         if (selectionListener != null) {
@@ -200,9 +210,9 @@ public class Knife {
 
     public void remove(Class spanClass, int start, int end) {
         if (isParagraphSpan(spanClass)) {
-            removeParagraph(textView.getEditableText(), spanClass, start, end);
+            removeParagraph(getText(), spanClass, start, end);
         } else {
-            removeSpan(textView.getEditableText(), spanClass, start, end);
+            removeSpan(getText(), spanClass, start, end);
         }
 
         if (selectionListener != null) {
@@ -216,9 +226,9 @@ public class Knife {
 
     public boolean has(Class spanClass, int start, int end) {
         if (isParagraphSpan(spanClass)) {
-            return isFullOfParagraphs(textView.getEditableText(), spanClass, start, end);
+            return isFullOfParagraphs(getText(), spanClass, start, end);
         } else {
-            return isFullySpanned(textView.getEditableText(), spanClass, start, end);
+            return isFullySpanned(getText(), spanClass, start, end);
         }
     }
 
@@ -228,9 +238,9 @@ public class Knife {
 
     public void toggle(Class spanClass, int start, int end) {
         if (isParagraphSpan(spanClass)) {
-            toggleParagraph(textView.getEditableText(), spanClass, start, end);
+            toggleParagraph(getText(), spanClass, start, end);
         } else {
-            toggleSpan(textView.getEditableText(), spanClass, start, end);
+            toggleSpan(getText(), spanClass, start, end);
         }
 
         if (selectionListener != null) {
@@ -255,7 +265,7 @@ public class Knife {
     }
 
     public Span<String> getLink(int start) {
-        final Spannable text = textView.getEditableText();
+        final Spannable text = getText();
         final URLSpan[] urls = text.getSpans(start, start, URLSpan.class);
         return urls.length == 0 ? null : new Span<>(urls[0].getURL(),
                 text.getSpanStart(urls[0]), text.getSpanEnd(urls[0]));
