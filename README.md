@@ -18,7 +18,7 @@ problems.
 
 Add dependency to your `build.gradle` file:
 
-    compile 'com.alexvasilkov:knife-fork:1.2.0'
+    compile 'com.alexvasilkov:knife-fork:1.2.1'
 
 ## Styling
 
