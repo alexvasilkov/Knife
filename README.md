@@ -1,22 +1,26 @@
-**This project is forked from https://github.com/mthli/Knife**
-
-The library was abandoned for 2 years, and originally it was distributed with manifest merging
-problems.
-
 Knife
 ===
 
-Knife (extend EditText) is a rich text editor component for writing documents in Android.
+[![Maven Central][https://img.shields.io/maven-central/v/com.alexvasilkov/knife-fork.svg?style=flat-square]][https://maven-badges.herokuapp.com/maven-central/com.alexvasilkov/knife-fork]
 
-Just select text and use one line code to style it!
+Knife is a rich text editor for Android. Just select text and use one line code to style it.
 
-Support Android 4.0+
+## Fork
+
+Original library was abandoned for 2 years and was distributed with manifest merging
+problems.
 
 ## Example
 
 ![example.gif](./example.gif "example.gif")
 
-## Api
+## Usage
+
+Add dependency to your `build.gradle` file:
+
+    compile 'com.alexvasilkov:knife-fork:1.2.0'
+
+## Styling
 
  - `bold(boolean valid)` __bold__ the selected text.
  
@@ -42,21 +46,21 @@ Support Android 4.0+
 
 #### Custom
 
- - `app:bulletColor`
+ - `app:knife_bulletColor`
  
- - `app:bulletRadius`
+ - `app:knife_bulletRadius`
     
- - `app:bulletGapWidth`
+ - `app:knife_bulletGap`
     
- - `app:linkColor`
+ - `app:knife_linkColor`
     
- - `app:linkUnderline` `true` to enable link underline.
+ - `app:knife_linkUnderline` `true` to enable link underline.
     
- - `app:quoteColor`
+ - `app:knife_quoteColor`
     
- - `app:quoteStripeWidth` the quote line width.
+ - `app:knife_quoteStripeWidth` the quote line width.
     
- - `app:quoteCapWidth`
+ - `app:knife_quoteGap`
 
 
 ## Reference
